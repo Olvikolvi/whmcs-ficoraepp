@@ -995,9 +995,13 @@ function ficoraepp_Sync($params)
         // WHMCS does not provide the Sync function with "domainname" parameter
         $params['domainname'] = $params['domainname'] ?: $params['domain'];
         $info = (new FicoraModule($params))->info();
-
+        $expdate = (new DateTime($info->getDomainExpirationDate()))->format('Y-m-d'); // Format: YYYY-MM-DD
+        if ( strtotime($expdate) < 631155660 )
+          return [
+              'error' => 'Invalid expiration date '.$expdate.' (Authorization error)',
+          ]
         return [
-            'expirydate' => (new DateTime($info->getDomainExpirationDate()))->format('Y-m-d'), // Format: YYYY-MM-DD
+            'expirydate' => $expdate,
         ];
 
     } catch (\Exception $e) {
